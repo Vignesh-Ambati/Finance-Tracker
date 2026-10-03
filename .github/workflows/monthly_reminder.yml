@@ -1,0 +1,20 @@
+name: Monthly Interest Reminder Trigger
+
+on:
+  schedule:
+    # Runs at 09:00 UTC on the 1st day of every month
+    - cron: '0 9 1 * *'
+  # Allows triggering manually from GitHub Actions tab for testing
+  workflow_dispatch:
+
+jobs:
+  trigger-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Monthly Reminders Endpoint
+        run: |
+          echo "Sending monthly reminder request to backend..."
+          curl -X POST "${{ secrets.BACKEND_URL }}/api/scheduler/monthly-reminders" \
+            -H "Content-Type: application/json" \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
+            --fail --show-error
