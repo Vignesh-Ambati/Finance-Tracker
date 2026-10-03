@@ -1,0 +1,64 @@
+services:
+  # ==========================================
+  # Backend Web Service (Flask API)
+  # ==========================================
+  - type: web
+    name: finance-tracker-backend
+    runtime: python
+    rootDir: backend
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn run:app
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: CRON_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false # Set this to your Neon PostgreSQL connection string in the Render Dashboard
+      - key: FRONTEND_URL
+        sync: false # Update with your live frontend URL once created
+      - key: MAIL_SERVER
+        sync: false
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_USE_TLS
+        value: "True"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_DEFAULT_SENDER
+        sync: false
+
+  # ==========================================
+  # Frontend Web Service (Next.js 14)
+  # ==========================================
+  - type: web
+    name: finance-tracker-frontend
+    runtime: node
+    rootDir: frontend
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: finance-tracker-backend
+          property: host
+      - key: BACKEND_URL
+        fromService:
+          type: web
+          name: finance-tracker-backend
+          property: host
