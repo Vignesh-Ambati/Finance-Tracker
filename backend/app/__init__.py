@@ -17,19 +17,10 @@ def create_app(config_class=Config):
     jwt.init_app(app)
     mail.init_app(app)
 
-    # CORS setup: Parse allowed origins from FRONTEND_URL or allow all in development
-    frontend_raw = app.config.get('FRONTEND_URL', 'http://localhost:3000')
-    allowed_origins = [url.strip().rstrip('/') for url in frontend_raw.split(',') if url.strip()]
-    if not allowed_origins or '*' in allowed_origins:
-        CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-    else:
-        # Also always permit localhost during local development
-        for dev_url in ['http://localhost:3000', 'http://127.0.0.1:3000']:
-            if dev_url not in allowed_origins:
-                allowed_origins.append(dev_url)
-        CORS(app, resources={r"/*": {"origins": allowed_origins}}, supports_credentials=True)
+    # Completely open CORS: allows requests from any frontend without circular dependency
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
-    # Health check for deployment platforms (Render, Railway, Uptime monitors)
+    # Health check for platforms & monitors
     @app.route('/', methods=['GET'])
     def root_health():
         return jsonify({'status': 'healthy', 'service': 'finance-tracker-api'}), 200

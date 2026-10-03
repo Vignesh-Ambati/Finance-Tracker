@@ -26,5 +26,6 @@ class Config:
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
     
-    FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+    # Default to open CORS so backend has ZERO dependency on frontend link
+    FRONTEND_URL = os.getenv('FRONTEND_URL', '*')
     CRON_SECRET = os.getenv('CRON_SECRET', 'default-cron-secret')
